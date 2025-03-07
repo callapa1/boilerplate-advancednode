@@ -47,6 +47,13 @@ myDB(async client => {
     res.render('profile', {username: req.user.username});
   });
 
+  app
+    .route('/logout')
+    .get((req, res) => {
+      req.logout();
+      res.redirect('/');
+    });
+
   passport.use(new LocalStrategy((username, password, done) => {
     myDataBase.findOne({ username: username }, (err, user) => {
       console.log(`User ${username} attempted to log in.`);
@@ -65,6 +72,12 @@ myDB(async client => {
       done(null, doc);
     })
   })
+
+  app.use((req, res, next) => {
+    res.status(404)
+      .type('text')
+      .send('Not Found');
+  });
 
 }).catch(e => {
   app.route('/').get((req, res) => {
