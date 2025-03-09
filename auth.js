@@ -10,13 +10,31 @@ module.exports = function (app, myDataBase) {
     },
     function (accessToken, refreshToken, profile, cb) {
         console.log(profile);
-        myDataBase.findOne({ username: profile.username }, (err, user) => {
-            console.log(`User ${username} attempted to log in.`);
-            if (err) return done(err);
-            if (!user) return done(null, false);
-            if (passport !== user.password) return done(null, false);
-            return done(null, user);
-        })
+        myDataBase.findOneAndUpdate(
+            {id: profile.id},
+            {
+                $setOnInsert: {
+                    id: profile.id,
+                    username: profile.username,
+                    name: profile.displayName || 'John Doe',
+                    photo: profile.photos[0].value || '',
+                    email: Array.isArray(profile.emails)
+                    ? profile.emails[0].value
+                    : 'Np public email',
+                    provider: profile.provider || ''
+                },
+                $set: {
+                    last_login: new Date()
+                },
+                $inc: {
+                    login_count: 1
+                }
+            },
+            { upsert: true, new: true },
+            (err, doc) => {
+                return cb(null, doc.value)
+            }
+        )
     }
 ));
 
