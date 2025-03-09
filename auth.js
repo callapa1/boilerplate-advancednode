@@ -1,4 +1,5 @@
 require('dotenv').config();
+const passport = require('passport');
 const GithubStrategy = require('passport-github').Strategy;
 const LocalStrategy = require('passport-local');
 const bcrypt = require('bcrypt');
@@ -16,7 +17,7 @@ module.exports = function (app, myDataBase) {
 
 
     passport.use(new GithubStrategy({
-        clientId: process.env.GITHUB_CLIENT_ID,
+        clientID: process.env.GITHUB_CLIENT_ID,
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
         callbackURL: 'http://cristian.testapp'
     },
